@@ -26,8 +26,7 @@ async function checkProductAvailability(link) {
     const response = await fetch(link, {
         method: "GET",
         headers: {
-            "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "User-Agent": "Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
         },
     });
 
@@ -50,10 +49,11 @@ async function fetchProductLinks() {
         const response = await fetch(url, {
             method: "GET",
             headers: {
-                "User-Agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+                "User-Agent": "Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
                 "Accept-Language": "en-US,en;q=0.9",
                 "Referer": "https://www.adidas.com.ar/",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                "Connection": "keep-alive",
             },
         });
 
@@ -72,12 +72,10 @@ async function fetchProductLinks() {
         const products = [];
 
         $('article[data-testid="plp-product-card"]').each((index, product) => {
-            // Verifica si el producto está agotado
             const isOutOfStock =
                 $(product).find("div.gl-price-item").text().trim() ===
                 "Agotado";
 
-            // Solo se agrega el producto si está disponible
             if (!isOutOfStock) {
                 const productLink = $(product)
                     .find('a[data-testid="product-card-description-link"]')
@@ -96,7 +94,6 @@ async function fetchProductLinks() {
             }
         });
 
-        // Filtrar los productos no disponibles
         const availableProducts = [];
         for (const product of products) {
             const isAvailable = await checkProductAvailability(product.link);
@@ -119,6 +116,5 @@ async function fetchProductLinks() {
     }
 }
 
-// Ejecutar la función inmediatamente y luego cada 10 minutos
 fetchProductLinks();
 setInterval(fetchProductLinks, 600000); // 600000 ms = 10 minutos
