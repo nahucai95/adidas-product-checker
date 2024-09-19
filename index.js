@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import * as cheerio from "cheerio";
 
 const url =
-    "https://www.adidas.com.ar/calzado-zapatillas-hombre?price_max=47998&price_min=1000&sort=price-low-to-high&v_size_es_ar=40_uk_8";
+    "https://www.adidas.com.ar/calzado-zapatillas-hombre?price_max=50000&price_min=1000&sort=price-low-to-high&v_size_es_ar=40_uk_8";
 
 const TELEGRAM_TOKEN = "7805454239:AAF0GEgM9JYf9bEkP1mLiPIkyNgsX3UWMlA";
 const CHAT_ID = "6448309014";
