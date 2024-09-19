@@ -1,15 +1,11 @@
 import fetch from "node-fetch";
 import * as cheerio from "cheerio";
-import express from "express"; // Importa express
-
-const app = express(); // Crea una instancia de Express
-const PORT = process.env.PORT || 3000; // Usa el puerto asignado por Render o 3000 por defecto
 
 const url =
     "https://www.adidas.com.ar/calzado-zapatillas-hombre?price_max=50000&price_min=1000&sort=price-low-to-high&v_size_es_ar=40_uk_8";
 
-const TELEGRAM_TOKEN = "7805454239:AAF0GEgM9JYf9bEkP1mLiPIkyNgsX3UWMlA"; // Cambia esto por tu token real
-const CHAT_ID = "6448309014"; // Cambia esto por tu ID de chat real
+const TELEGRAM_TOKEN = "7805454239:AAF0GEgM9JYf9bEkP1mLiPIkyNgsX3UWMlA";
+const CHAT_ID = "6448309014";
 
 async function sendMessage(message) {
     const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
@@ -56,12 +52,16 @@ async function fetchProductLinks() {
             headers: {
                 "User-Agent":
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Referer": "https://www.adidas.com.ar/",
             },
         });
 
         if (!response.ok) {
             if (response.status === 404) {
                 await sendMessage("No se encuentra la página.");
+            } else if (response.status === 403) {
+                await sendMessage("Acceso denegado a la página.");
             }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -72,10 +72,12 @@ async function fetchProductLinks() {
         const products = [];
 
         $('article[data-testid="plp-product-card"]').each((index, product) => {
+            // Verifica si el producto está agotado
             const isOutOfStock =
                 $(product).find("div.gl-price-item").text().trim() ===
                 "Agotado";
 
+            // Solo se agrega el producto si está disponible
             if (!isOutOfStock) {
                 const productLink = $(product)
                     .find('a[data-testid="product-card-description-link"]')
@@ -94,6 +96,7 @@ async function fetchProductLinks() {
             }
         });
 
+        // Filtrar los productos no disponibles
         const availableProducts = [];
         for (const product of products) {
             const isAvailable = await checkProductAvailability(product.link);
@@ -116,16 +119,6 @@ async function fetchProductLinks() {
     }
 }
 
-// Configura una ruta en el servidor
-app.get('/', (req, res) => {
-    res.send('El servicio está corriendo...');
-});
-
-// Ejecuta la función inmediatamente y luego cada 10 minutos
+// Ejecutar la función inmediatamente y luego cada 10 minutos
 fetchProductLinks();
 setInterval(fetchProductLinks, 600000); // 600000 ms = 10 minutos
-
-// Inicia el servidor
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
-});
