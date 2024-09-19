@@ -8,8 +8,8 @@ const PORT = process.env.PORT || 3000; // Usa el puerto asignado por Render o 30
 const url =
     "https://www.adidas.com.ar/calzado-zapatillas-hombre?price_max=50000&price_min=1000&sort=price-low-to-high&v_size_es_ar=40_uk_8";
 
-const TELEGRAM_TOKEN = "YOUR_TELEGRAM_TOKEN"; // Cambia esto por tu token real
-const CHAT_ID = "YOUR_CHAT_ID"; // Cambia esto por tu ID de chat real
+const TELEGRAM_TOKEN = "7805454239:AAF0GEgM9JYf9bEkP1mLiPIkyNgsX3UWMlA"; // Cambia esto por tu token real
+const CHAT_ID = "6448309014"; // Cambia esto por tu ID de chat real
 
 async function sendMessage(message) {
     const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
