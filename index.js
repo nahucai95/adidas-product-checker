@@ -1,11 +1,15 @@
 import fetch from "node-fetch";
 import * as cheerio from "cheerio";
+import express from "express"; // Importa express
+
+const app = express(); // Crea una instancia de Express
+const PORT = process.env.PORT || 3000; // Usa el puerto asignado por Render o 3000 por defecto
 
 const url =
     "https://www.adidas.com.ar/calzado-zapatillas-hombre?price_max=50000&price_min=1000&sort=price-low-to-high&v_size_es_ar=40_uk_8";
 
-const TELEGRAM_TOKEN = "7805454239:AAF0GEgM9JYf9bEkP1mLiPIkyNgsX3UWMlA";
-const CHAT_ID = "6448309014";
+const TELEGRAM_TOKEN = "YOUR_TELEGRAM_TOKEN"; // Cambia esto por tu token real
+const CHAT_ID = "YOUR_CHAT_ID"; // Cambia esto por tu ID de chat real
 
 async function sendMessage(message) {
     const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
@@ -68,12 +72,10 @@ async function fetchProductLinks() {
         const products = [];
 
         $('article[data-testid="plp-product-card"]').each((index, product) => {
-            // Verifica si el producto está agotado
             const isOutOfStock =
                 $(product).find("div.gl-price-item").text().trim() ===
                 "Agotado";
 
-            // Solo se agrega el producto si está disponible
             if (!isOutOfStock) {
                 const productLink = $(product)
                     .find('a[data-testid="product-card-description-link"]')
@@ -92,7 +94,6 @@ async function fetchProductLinks() {
             }
         });
 
-        // Filtrar los productos no disponibles
         const availableProducts = [];
         for (const product of products) {
             const isAvailable = await checkProductAvailability(product.link);
@@ -115,6 +116,16 @@ async function fetchProductLinks() {
     }
 }
 
-// Ejecutar la función inmediatamente y luego cada 10 minutos
+// Configura una ruta en el servidor
+app.get('/', (req, res) => {
+    res.send('El servicio está corriendo...');
+});
+
+// Ejecuta la función inmediatamente y luego cada 10 minutos
 fetchProductLinks();
-setInterval(fetchProductLinks, 100000); // 600000 ms = 10 minutos
+setInterval(fetchProductLinks, 600000); // 600000 ms = 10 minutos
+
+// Inicia el servidor
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
+});
